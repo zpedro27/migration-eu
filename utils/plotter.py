@@ -14,6 +14,37 @@ def load_config():
     sns.set(**cfg["general_plotting"])
     return cfg
 
+def plot_absolute_vals(df: pd.DataFrame, countries_to_inspect: list):
+    f, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+    for country in countries_to_inspect:
+        
+        params = {"data": df.loc[df.country == country],
+                  "x": "year",
+                  "linewidth": 3}
+
+        sns.lineplot(y="emigration", ax=ax[0], label="emigration", **params)
+        color = ax[0].get_lines()[-1].get_color()   # use same color 
+        sns.lineplot(y="immigration", ax=ax[0], linestyle="--", color=color, label="immigration", **params)
+        sns.lineplot(y="net", ax=ax[1], color=color, label=country, **params)
+
+    # Reference line:
+    ax[1].axhline(0, color="red", linestyle=":")
+
+    # Display only last 2 entries of the legend:
+    handles, labels = ax[0].get_legend_handles_labels()
+    ax[0].legend(handles[-2:], labels[-2:])
+
+    # Other settings:
+    ax[1].legend()
+    ax[0].set_ylabel("Migration [pp/year]")
+    ax[1].set_ylabel("Net [pp/year]")
+    for ax_ in ax:
+        ax_.set_xlabel("Year")
+        
+    return f, ax
+
+
 def plot_trends(df: pd.DataFrame, df_corr: pd.DataFrame, ref_country: str, other_countries: list):
         
     f, ax = plt.subplots()
